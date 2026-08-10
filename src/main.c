@@ -1,4 +1,6 @@
-#include <stdio.h>
+#include "config.h"
+
+#include "types.h"
 
 int main()
 {
