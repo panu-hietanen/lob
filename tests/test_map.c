@@ -55,6 +55,21 @@ bool key_find_existing(Map* map)
     return keys_unique(map);
 }
 
+bool key_insert_colliding(Map* map)
+{
+    reset_map(map);
+    int value1 = 42, value2 = 50;
+    u64 key1 = 1, key2 = key_find_colliding(key1);
+
+    if (map_insert(map, key1, &value1) != SUCCESS) return false;
+    if (map_insert(map, key2, &value2) != SUCCESS) return false;
+
+    if (map_lookup(map, key1) != &value1) return false;
+    if (map_lookup(map, key2) != &value2) return false;
+
+    return keys_unique(map);
+}
+
 bool key_overwrite_existing(Map* map)
 {
     reset_map(map);
@@ -181,6 +196,7 @@ int main()
 
     TestCase tests[] = {
         {"key_find_existing",          key_find_existing},
+        {"key_insert_colliding",       key_insert_colliding},
         {"key_overwrite_existing",     key_overwrite_existing},
         {"key_delete_exists",          key_delete_exists},
         {"key_delete_nonexistent",     key_delete_nonexistent},
