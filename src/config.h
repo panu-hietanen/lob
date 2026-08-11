@@ -28,4 +28,7 @@ typedef double f64;
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define ALIGN_UP_POW2(n, p) (((u64)(n) + ((u64)(p) - 1)) & (~((u64)(p) - 1)))
 
+#define MAP_N 6
+#define MAP_SIZE (1ULL << (MAP_N))
+
 #endif // CONFIG_H_

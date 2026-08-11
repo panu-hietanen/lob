@@ -8,6 +8,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 add_executable(lob
     src/main.c
     src/price_level.c
+    src/map.c
 )
 
 target_include_directories(lob PRIVATE src)
