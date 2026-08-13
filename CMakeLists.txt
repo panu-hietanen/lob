@@ -9,6 +9,7 @@ add_executable(lob
     src/main.c
     src/price_level.c
     src/map.c
+    src/pool.c
 )
 
 target_include_directories(lob PRIVATE src)

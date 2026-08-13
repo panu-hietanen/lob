@@ -1,6 +1,7 @@
 #include "config.h"
 
 #include "types.h"
+#include "pool.h"
 
 int main()
 {

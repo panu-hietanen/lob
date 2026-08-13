@@ -31,4 +31,6 @@ typedef double f64;
 #define MAP_N 6
 #define MAP_SIZE (1ULL << (MAP_N))
 
+#define POOL_CAPACITY 1024
+
 #endif // CONFIG_H_
