@@ -7,11 +7,13 @@
 #include "pool.h"
 
 typedef struct OrderBook {
+    PriceLevel* bestBid;
+    PriceLevel* bestAsk;
+    PriceLevel* bidRoot;
+    PriceLevel* askRoot;
     Map bidMap;
     Map askMap;
     Map ordersMap;
-    PriceLevel* bestBid;
-    PriceLevel* bestAsk;
     Pool* orderData;
 } OrderBook;
 

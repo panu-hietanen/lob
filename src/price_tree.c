@@ -18,6 +18,8 @@ void tree_insert(PriceLevel** rootptr, PriceLevel* level)
     }
     *curr = level;
     level->parent = parent;
+    level->right = NULL;
+    level->left = NULL;
 }
 
 void tree_remove(PriceLevel** rootptr, PriceLevel* level)
@@ -81,6 +83,7 @@ void tree_remove(PriceLevel** rootptr, PriceLevel* level)
 
 PriceLevel* tree_min(PriceLevel* root)
 {
+    if (root == NULL) return NULL;
     PriceLevel* curr = root;
     while (curr->left != NULL)
     {
@@ -91,6 +94,7 @@ PriceLevel* tree_min(PriceLevel* root)
 
 PriceLevel* tree_max(PriceLevel* root)
 {
+    if (root == NULL) return NULL;
     PriceLevel* curr = root;
     while (curr->right != NULL)
     {
