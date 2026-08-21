@@ -10,6 +10,7 @@ add_executable(lob
     src/price_level.c
     src/map.c
     src/pool.c
+    src/price_tree.c
 )
 target_include_directories(lob PRIVATE src)
 

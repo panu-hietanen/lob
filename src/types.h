@@ -9,6 +9,7 @@ typedef enum Side {
 } Side;
 
 typedef struct Order Order;
+typedef struct PriceLevel PriceLevel;
 typedef u64 Price;
 
 typedef struct PriceLevel {
@@ -16,7 +17,9 @@ typedef struct PriceLevel {
     u64 length;
     Order* front;
     Order* back;
-    Side side;
+    PriceLevel* parent;
+    PriceLevel* left;
+    PriceLevel* right;
 } PriceLevel;
 
 typedef u64 OrderId;
