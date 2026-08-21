@@ -53,8 +53,6 @@ int main()
         bool (*fn)();
     } TestCase;
 
-    Pool pool;
-
     TestCase tests[] = {
         {"pool_alloc_full", pool_alloc_full},
         {"pool_alloc_after_free", pool_alloc_after_free},
