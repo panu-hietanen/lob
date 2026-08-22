@@ -5,6 +5,17 @@ u64 fib_index(u64 key)
     return (key * 0x9E3779B97F4A7C15ULL) >> (64 - MAP_N);
 }
 
+void map_init(Map *map)
+{
+    for (u64 i = 0; i < MAP_SIZE; ++i)
+    {
+        MapData* data = &map->data[i];
+        data->state = EMPTY;
+        data->key = 0;
+        data->value = NULL;
+    }
+}
+
 InsertResult map_insert(Map *map, u64 key, void *value)
 {
     u64 idx = fib_index(key);

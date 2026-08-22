@@ -4,6 +4,8 @@
 #include "config.h"
 #include "types.h"
 
+void tree_destroy(PriceLevel** rootptr);
+
 void tree_insert(PriceLevel** rootptr, PriceLevel* level);
 void tree_remove(PriceLevel** rootptr, PriceLevel* level);
 PriceLevel* tree_min(PriceLevel* root);

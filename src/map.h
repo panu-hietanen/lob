@@ -27,6 +27,8 @@ typedef struct Map {
 
 u64 fib_index(u64 key);
 
+void map_init(Map* map);
+
 InsertResult map_insert(Map* map, u64 key, void* value);
 void* map_lookup(Map* map, u64 key);
 void map_delete(Map* map, u64 key);

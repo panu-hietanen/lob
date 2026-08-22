@@ -1,6 +1,21 @@
 #include "price_tree.h"
 
-void tree_insert(PriceLevel** rootptr, PriceLevel* level)
+void tree_destroy(PriceLevel **rootptr)
+{
+    if (*rootptr == NULL) return;
+    if ((*rootptr)->left != NULL)
+    {
+        tree_destroy(&(*rootptr)->left);
+    }
+    if ((*rootptr)->right != NULL)
+    {
+        tree_destroy(&(*rootptr)->right);
+    }
+    free(*rootptr);
+    *rootptr = NULL;
+}
+
+void tree_insert(PriceLevel **rootptr, PriceLevel *level)
 {
     PriceLevel** curr = rootptr;
     PriceLevel* parent = NULL;
