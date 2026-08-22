@@ -145,7 +145,7 @@ bool book_delete(Side side)
     u64 quantity2 = 100;
     book_add_order(book, id2, price1, quantity2, side);
     
-    if (!book_delete_order(book, id2, side)) return false;
+    if (!book_delete_order_id(book, id2, side)) return false;
     if (map_lookup(&book->ordersMap, id1) == NULL) return false;
     if (map_lookup(&book->ordersMap, id2) != NULL) return false;
 
@@ -172,7 +172,7 @@ bool book_delete_invalid(Side side)
     book_add_order(book, id2, price1, quantity2, side);
     
     OrderId id3 = 3;
-    if (book_delete_order(book, id3, side)) return false;
+    if (book_delete_order_id(book, id3, side)) return false;
     if (map_lookup(&book->ordersMap, id1) == NULL) return false;
     if (map_lookup(&book->ordersMap, id2) == NULL) return false;
 
@@ -201,7 +201,7 @@ bool book_delete_update_best(Side side)
     PriceLevel* best = (side == BUY) ? book->bestBid : book->bestAsk;
     if (best->price != price2) return false;
     
-    if (!book_delete_order(book, id2, side)) return false;
+    if (!book_delete_order_id(book, id2, side)) return false;
     if (map_lookup(&book->ordersMap, id1) == NULL) return false;
     if (map_lookup(&book->ordersMap, id2) != NULL) return false;
 
@@ -232,7 +232,7 @@ bool book_delete_dont_update_best(Side side)
     PriceLevel* best = (side == BUY) ? book->bestBid : book->bestAsk;
     if (best->price != price2) return false;
     
-    if (!book_delete_order(book, id1, side)) return false;
+    if (!book_delete_order_id(book, id1, side)) return false;
     if (map_lookup(&book->ordersMap, id1) != NULL) return false;
     if (map_lookup(&book->ordersMap, id2) == NULL) return false;
 
@@ -261,7 +261,7 @@ bool book_cancel(Side side)
     book_add_order(book, id2, price1, quantity2, side);
     
     u64 cancel_amount = 90;
-    if (!book_cancel_order(book, id2, cancel_amount, side)) return false;
+    if (!book_cancel_order_id(book, id2, cancel_amount, side)) return false;
     if (map_lookup(&book->ordersMap, id1) == NULL) return false;
     Order* newOrder = map_lookup(&book->ordersMap, id2);
     if (newOrder->quantity != quantity2 - cancel_amount) return false;
@@ -290,7 +290,7 @@ bool book_cancel_invalid(Side side)
     
     OrderId id3 = 3;
     u64 cancel_amount = 90;
-    if (book_cancel_order(book, id3, cancel_amount, side)) return false;
+    if (book_cancel_order_id(book, id3, cancel_amount, side)) return false;
     if (map_lookup(&book->ordersMap, id1) == NULL) return false;
     if (map_lookup(&book->ordersMap, id2) == NULL) return false;
 
@@ -317,7 +317,7 @@ bool book_cancel_full_amount(Side side)
     book_add_order(book, id2, price1, quantity2, side);
     
     u64 cancel_amount = 100;
-    if (!book_cancel_order(book, id2, cancel_amount, side)) return false;
+    if (!book_cancel_order_id(book, id2, cancel_amount, side)) return false;
     if (map_lookup(&book->ordersMap, id1) == NULL) return false;
     if (map_lookup(&book->ordersMap, id2) != NULL) return false;
 
@@ -343,7 +343,7 @@ bool book_cancel_too_much(Side side)
     book_add_order(book, id2, price1, quantity2, side);
     
     u64 cancel_amount = 110;
-    if (book_cancel_order(book, id2, cancel_amount, side)) return false;
+    if (book_cancel_order_id(book, id2, cancel_amount, side)) return false;
     if (map_lookup(&book->ordersMap, id1) == NULL) return false;
     if (map_lookup(&book->ordersMap, id2) == NULL) return false;
 
@@ -355,6 +355,157 @@ bool book_cancel_too_much(Side side)
     book_destroy(book);
     return true;
 }
+
+bool book_submit_no_cross(Side side)
+{
+    OrderBook* book = book_init();
+    Receipt receipts[MAX_RECEIPTS];
+    u64 filled = 0;
+
+    Side restingSide = (side == BUY) ? SELL : BUY;
+    OrderId id1 = 1;
+    Price price1 = 5;
+    u64 quantity1 = 100;
+    if (!book_submit_order(book, id1, price1, quantity1, restingSide, receipts, &filled)) return false;
+    if (!book_level_present(book, price1, restingSide)) return false;
+    if (!book_order_present(book, id1, quantity1)) return false;
+
+    OrderId id2 = 2;
+    Price price2 = (side == BUY) ? 4 : 6;
+    u64 quantity2 = 100;
+    if (!book_submit_order(book, id2, price2, quantity2, side, receipts, &filled)) return false;
+    if (!book_order_present(book, id2, quantity2)) return false;
+
+    book_destroy(book);
+    return true;
+}
+
+bool book_submit_full_match_exact_quantity(Side side)
+{
+    OrderBook* book = book_init();
+    Receipt receipts[MAX_RECEIPTS];
+    u64 filled = 0;
+
+    Side restingSide = (side == BUY) ? SELL : BUY;
+    OrderId id1 = 1;
+    Price price1 = 5;
+    u64 quantity1 = 100;
+    if (!book_submit_order(book, id1, price1, quantity1, restingSide, receipts, &filled)) return false;
+    if (!book_level_present(book, price1, restingSide)) return false;
+    if (!book_order_present(book, id1, quantity1)) return false;
+
+    OrderId id2 = 2;
+    Price price2 = (side == BUY) ? 6 : 4;
+    u64 quantity2 = 100;
+    if (!book_submit_order(book, id2, price2, quantity2, side, receipts, &filled)) return false;
+    if (book_order_present(book, id2, quantity2)) return false;
+    if (book_level_present(book, price2, side)) return false;
+    if (receipts[0].id != id1) return false;
+    if (receipts[0].price != price1) return false;
+    if (receipts[0].quantity != quantity1) return false;
+
+    book_destroy(book);
+    return true;
+}
+
+bool book_submit_full_match_exact_price(Side side)
+{
+    OrderBook* book = book_init();
+    Receipt receipts[MAX_RECEIPTS];
+    u64 filled = 0;
+
+    Side restingSide = (side == BUY) ? SELL : BUY;
+    OrderId id1 = 1;
+    Price price1 = 5;
+    u64 quantity1 = 200;
+    if (!book_submit_order(book, id1, price1, quantity1, restingSide, receipts, &filled)) return false;
+    if (!book_level_present(book, price1, restingSide)) return false;
+    if (!book_order_present(book, id1, quantity1)) return false;
+
+    OrderId id2 = 2;
+    Price price2 = 5;
+    u64 quantity2 = 100;
+    if (!book_submit_order(book, id2, price2, quantity2, side, receipts, &filled)) return false;
+    if (book_order_present(book, id2, quantity2)) return false;
+    if (book_level_present(book, price2, side)) return false;
+    if (receipts[0].id != id1) return false;
+    if (receipts[0].price != price1) return false;
+    if (receipts[0].quantity != quantity2) return false;
+
+    Order* restingOrder = map_lookup(&book->ordersMap, id1);
+    if (restingOrder == NULL) return false;
+    if (restingOrder->quantity != quantity1 - quantity2) return false;
+
+    book_destroy(book);
+    return true;
+}
+
+bool book_submit_full_match_multi_level(Side side)
+{
+    OrderBook* book = book_init();
+    Receipt receipts[MAX_RECEIPTS];
+    u64 filled = 0;
+
+    Side restingSide = (side == BUY) ? SELL : BUY;
+    OrderId id1 = 1;
+    Price price1 = 5;
+    u64 quantity1 = 50;
+    if (!book_submit_order(book, id1, price1, quantity1, restingSide, receipts, &filled)) return false;
+    if (!book_level_present(book, price1, restingSide)) return false;
+    if (!book_order_present(book, id1, quantity1)) return false;
+
+    OrderId id2 = 2;
+    Price price2 = 6;
+    u64 quantity2 = 50;
+    if (!book_submit_order(book, id2, price2, quantity2, restingSide, receipts, &filled)) return false;
+    if (!book_level_present(book, price2, restingSide)) return false;
+    if (!book_order_present(book, id2, quantity2)) return false;
+
+    OrderId id3 = 3;
+    Price price3 = (side == BUY) ? 7 : 4;
+    u64 quantity3 = 100;
+    if (!book_submit_order(book, id3, price3, quantity3, side, receipts, &filled)) return false;
+    if (book_order_present(book, id3, quantity3)) return false;
+    if (book_level_present(book, price3, side)) return false;
+    if (receipts[side == SELL].id != id1) return false;
+    if (receipts[side == SELL].price != price1) return false;
+    if (receipts[side == SELL].quantity != quantity1) return false;
+    if (receipts[side == BUY].id != id2) return false;
+    if (receipts[side == BUY].price != price2) return false;
+    if (receipts[side == BUY].quantity != quantity2) return false;
+
+    book_destroy(book);
+    return true;
+}
+
+bool book_submit_partial(Side side)
+{
+    OrderBook* book = book_init();
+    Receipt receipts[MAX_RECEIPTS];
+    u64 filled = 0;
+
+    Side restingSide = (side == BUY) ? SELL : BUY;
+    OrderId id1 = 1;
+    Price price1 = 5;
+    u64 quantity1 = 50;
+    if (!book_submit_order(book, id1, price1, quantity1, restingSide, receipts, &filled)) return false;
+    if (!book_level_present(book, price1, restingSide)) return false;
+    if (!book_order_present(book, id1, quantity1)) return false;
+
+    OrderId id2 = 2;
+    Price price2 = (side == BUY) ? 7 : 4;
+    u64 quantity2 = 100;
+    if (!book_submit_order(book, id2, price2, quantity2, side, receipts, &filled)) return false;
+    if (!book_order_present(book, id2, quantity2 - quantity1)) return false;
+    if (!book_level_present(book, price2, side)) return false;
+    if (receipts[0].id != id1) return false;
+    if (receipts[0].price != price1) return false;
+    if (receipts[0].quantity != quantity1) return false;
+
+    book_destroy(book);
+    return true;
+}
+
 
 int main()
 {
@@ -376,6 +527,11 @@ int main()
         {"book_cancel_invalid", book_cancel_invalid},
         {"book_cancel_full_amount", book_cancel_full_amount},
         {"book_cancel_too_much", book_cancel_too_much},
+        {"book_submit_no_cross", book_submit_no_cross},
+        {"book_submit_full_match_exact_quantity", book_submit_full_match_exact_quantity},
+        {"book_submit_full_match_exact_price", book_submit_full_match_exact_price},
+        {"book_submit_full_match_multi_level", book_submit_full_match_multi_level},
+        {"book_submit_partial", book_submit_partial},
     };
 
     int total = (int)(sizeof(tests) / sizeof(tests[0]));
