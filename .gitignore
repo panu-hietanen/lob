@@ -5,6 +5,7 @@
 
 .vscode/*
 CLAUDE.md
+data/*
 
 # User-specific files
 *.rsuser
