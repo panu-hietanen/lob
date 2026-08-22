@@ -96,3 +96,65 @@ void book_register_best(OrderBook *book, PriceLevel *level, Side side)
         }
     }
 }
+
+bool book_cancel_order(OrderBook *book, OrderId id, u64 quantity, Side side)
+{
+    Order* order = map_lookup(&book->ordersMap, id);
+    if (order == NULL) return false;
+    if (quantity > order->quantity) return false;
+    if (quantity == order->quantity) return book_delete_order(book, id, side);
+
+    order->quantity -= quantity;
+    return true;
+}
+
+bool book_delete_order(OrderBook *book, OrderId id, Side side)
+{
+    Order* order = map_lookup(&book->ordersMap, id);
+    if (order == NULL) return false;
+    PriceLevel* level = order->level;
+
+    Map* map;
+    PriceLevel* best;
+    PriceLevel** rootptr;
+    if (side == BUY)
+    {
+        map = &book->bidMap;
+        best = book->bestBid;
+        rootptr = &book->bidRoot;
+    }
+    else
+    {
+        map = &book->askMap;
+        best = book->bestAsk;
+        rootptr = &book->askRoot;
+    }
+
+    map_delete(&book->ordersMap, id);
+    unlink_order(order);
+    if (is_empty(level))
+    {
+        tree_remove(rootptr, level);
+        map_delete(map, level->price);
+        if (best == level)
+        {
+            book_update_best(book, side);
+        }
+        free(level);
+    }
+    pool_free(book->orderData, order);
+
+    return true;
+}
+
+void book_update_best(OrderBook *book, Side side)
+{
+    if (side == BUY)
+    {
+        book->bestBid = tree_max(book->bidRoot);
+    }
+    else
+    {
+        book->bestAsk = tree_min(book->askRoot);
+    }
+}
