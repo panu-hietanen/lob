@@ -16,5 +16,7 @@ bool tree_remove_two_children_over_one_hop();
 
 bool tree_find_min();
 bool tree_find_max();
+bool tree_find_next_min();
+bool tree_find_next_max();
 
 #endif // TEST_TREE_H_

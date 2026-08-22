@@ -193,6 +193,65 @@ bool tree_find_max()
     return tree_invariant(&tree);
 }
 
+bool tree_find_next_min()
+{
+    PriceLevel tree = {.price = 5, .parent = NULL, .left = NULL, .right = NULL};
+    PriceLevel* root = &tree;
+
+    PriceLevel node1 = {.price = 3, .parent = NULL, .left = NULL, .right = NULL};
+    tree_insert(&root, &node1);
+
+    PriceLevel node2 = {.price = 2, .parent = NULL, .left = NULL, .right = NULL};
+    tree_insert(&root, &node2);
+
+    PriceLevel node3 = {.price = 9, .parent = NULL, .left = NULL, .right = NULL};
+    tree_insert(&root, &node3);
+
+    PriceLevel node4 = {.price = 8, .parent = NULL, .left = NULL, .right = NULL};
+    tree_insert(&root, &node4);
+
+    PriceLevel* minNode = tree_next_min(&node2);
+    if (minNode->price != 3) return false;
+
+    minNode = tree_next_min(&node4);
+    if (minNode->price != 9) return false;
+
+    minNode = tree_next_min(&node3);
+    if (minNode != NULL) return false;
+    
+    return tree_invariant(&tree);
+}
+
+bool tree_find_next_max()
+{
+    PriceLevel tree = {.price = 5, .parent = NULL, .left = NULL, .right = NULL};
+    PriceLevel* root = &tree;
+
+    PriceLevel node1 = {.price = 3, .parent = NULL, .left = NULL, .right = NULL};
+    tree_insert(&root, &node1);
+
+    PriceLevel node2 = {.price = 2, .parent = NULL, .left = NULL, .right = NULL};
+    tree_insert(&root, &node2);
+
+    PriceLevel node3 = {.price = 9, .parent = NULL, .left = NULL, .right = NULL};
+    tree_insert(&root, &node3);
+
+    PriceLevel node4 = {.price = 8, .parent = NULL, .left = NULL, .right = NULL};
+    tree_insert(&root, &node4);
+
+    PriceLevel* minNode = tree_next_max(&node3);
+    if (minNode->price != 8) return false;
+
+    minNode = tree_next_max(&tree);
+    if (minNode->price != 3) return false;
+
+    minNode = tree_next_max(&node2);
+    if (minNode != NULL) return false;
+    
+    return tree_invariant(&tree);
+}
+
+
 int main()
 {
     typedef struct TestCase {
@@ -213,6 +272,8 @@ int main()
         {"tree_remove_two_children_over_one_hop", tree_remove_two_children_over_one_hop},
         {"tree_find_min", tree_find_min},
         {"tree_find_max", tree_find_max},
+        {"tree_find_next_min", tree_find_next_min},
+        {"tree_find_next_max", tree_find_next_max},
     };
 
     int total = (int)(sizeof(tests) / sizeof(tests[0]));

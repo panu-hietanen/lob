@@ -193,12 +193,12 @@ bool book_submit_order(OrderBook* book, OrderId id, Price price, u64 quantity, S
                         receipt[*filled].quantity = currOrder->quantity;
                         bought += currOrder->quantity;
                         if (currLevel->length == 1) updateLevel = true;
-                        book_delete_order(book, currOrder, restingSide);
                         if (updateLevel)
                         {
                             updateLevel = false;
-                            currLevel = tree_min(*rootptr);
+                            currLevel = tree_next_min(currLevel);
                         }
+                        book_delete_order(book, currOrder, restingSide);
                     }
                     else
                     {
@@ -240,12 +240,12 @@ bool book_submit_order(OrderBook* book, OrderId id, Price price, u64 quantity, S
                         receipt[*filled].quantity = currOrder->quantity;
                         bought += currOrder->quantity;
                         if (currLevel->length == 1) updateLevel = true;
-                        book_delete_order(book, currOrder, restingSide);
                         if (updateLevel)
                         {
                             updateLevel = false;
-                            currLevel = tree_max(*rootptr);
+                            currLevel = tree_next_max(currLevel);
                         }
+                        book_delete_order(book, currOrder, restingSide);
                     }
                     else
                     {

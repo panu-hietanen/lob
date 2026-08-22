@@ -117,3 +117,59 @@ PriceLevel* tree_max(PriceLevel* root)
     }
     return curr;
 }
+
+PriceLevel *tree_next_min(PriceLevel *node)
+{
+    if (node == NULL) return NULL; 
+    PriceLevel* successor = node->right;
+    if (successor == NULL)
+    {
+        PriceLevel* curr = node;
+        while (curr->parent != NULL)
+        {
+            if (curr->parent->left == curr)
+            {
+                return curr->parent;
+            }
+            curr = curr->parent;
+        }
+    }
+    else
+    {
+        while (successor->left != NULL)
+        {
+            successor = successor->left;
+        }
+        return successor;
+    }
+    
+    return NULL;
+}
+
+PriceLevel *tree_next_max(PriceLevel *node)
+{
+    if (node == NULL) return NULL; 
+    PriceLevel* successor = node->left;
+    if (successor == NULL)
+    {
+        PriceLevel* curr = node;
+        while (curr->parent != NULL)
+        {
+            if (curr->parent->right == curr)
+            {
+                return curr->parent;
+            }
+            curr = curr->parent;
+        }
+    }
+    else
+    {
+        while (successor->right != NULL)
+        {
+            successor = successor->right;
+        }
+        return successor;
+    }
+    
+    return NULL;
+}
