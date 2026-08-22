@@ -11,6 +11,7 @@ add_executable(lob
     src/map.c
     src/pool.c
     src/price_tree.c
+    src/order_book.c
 )
 target_include_directories(lob PRIVATE src)
 
@@ -42,6 +43,17 @@ add_executable(test_tree
 add_test(NAME tree COMMAND test_tree)
 target_include_directories(test_tree PRIVATE src)
 
+add_executable(test_book
+    tests/test_book.c
+    src/order_book.c
+    src/price_tree.c
+    src/price_level.c
+    src/map.c
+    src/pool.c
+)
+add_test(NAME book COMMAND test_book)
+target_include_directories(test_book PRIVATE src)
+
 
 if (MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(lob PRIVATE /fsanitize=address)
@@ -49,6 +61,7 @@ if (MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(test_map PRIVATE /fsanitize=address)
     target_compile_options(test_pool PRIVATE /fsanitize=address)
     target_compile_options(test_tree PRIVATE /fsanitize=address)
+    target_compile_options(test_book PRIVATE /fsanitize=address)
 elseif(NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(lob PRIVATE -fsanitize=address)
     target_link_options(lob PUBLIC -fsanitize=address)
@@ -60,4 +73,6 @@ elseif(NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(test_pool PUBLIC -fsanitize=address)
     target_compile_options(test_tree PRIVATE -fsanitize=address)
     target_link_options(test_tree PUBLIC -fsanitize=address)
+    target_compile_options(test_book PRIVATE -fsanitize=address)
+    target_link_options(test_book PUBLIC -fsanitize=address)
 endif()
