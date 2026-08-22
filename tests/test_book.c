@@ -21,6 +21,7 @@ bool book_check_best(OrderBook* book, Price price, Side side)
     {
         best = book->bestAsk;
     }
+    if (best == NULL) return false;
     return (best->price == price);
 }
 
@@ -151,7 +152,7 @@ int main()
     for (int i = 0; i < total; ++i)
     {
         bool ok = tests[i].fn(BUY);
-        ok |= tests[i].fn(SELL);
+        ok &= tests[i].fn(SELL);
         if (ok) passed++;
     }
 
